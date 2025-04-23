@@ -1,0 +1,40 @@
+import requests
+from django.http import HttpResponse
+from django.template import Template, Context
+
+def consumir_api_externa_html(request):
+    url = 'https://jsonplaceholder.typicode.com/posts'
+    response = requests.get(url)
+    posts = response.json()
+
+    html = """
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>API externa</title>
+        <style>
+            table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+            th, td { border: 1px solid #999; padding: 8px; text-align: left; }
+            th { background-color: #ddd; }
+        </style>
+    </head>
+    <body>
+        <h1>Datos desde API externa</h1>
+        <table>
+            <tr><th>ID</th><th>Título</th><th>Contenido</th></tr>
+            {% for post in posts %}
+            <tr>
+                <td>{{ post.id }}</td>
+                <td>{{ post.title }}</td>
+                <td>{{ post.body }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+    </html>
+    """
+
+    template = Template(html)
+    context = Context({'posts': posts})
+    return HttpResponse(template.render(context))
