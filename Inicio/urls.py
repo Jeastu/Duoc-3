@@ -2,7 +2,7 @@ from django.urls import path
 from .views import iniciar,iniciar_sesion, inicio, inicioadmin, registrar_m, registrarse, newProd,addprod,vistamod,eliminarProducto,menuadmin,micadmin,tecladoadmin,mouseAdmin,ramAdmin,graficaAdmin,procesadorAdmin,mostrarTeclado,teclado,mostrarMic,micro,mostrarMouse,mouse,mostrarGrafica,grafica,mostrarRam,ram,mostrarProcesador,procesador,carrito,perfilusuario,edicionProducto,editarProducto, mostrarperfil, modificarPerfil ,agregar_producto,eliminar_producto,restar_producto,limpiar_producto
 from django.conf import settings
 from django.conf.urls.static import static
-
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
 
@@ -70,7 +70,7 @@ urlpatterns = [
     path('miperfil/<id>',perfilusuario, name="miperfil"),
     path ('mostrarperfil/<id>', mostrarperfil, name="mostrarperfil"),
     path ('modificarPerfil/<id>', modificarPerfil, name="modificarPerfil"),
-    
+    path('logout/', auth_views.LogoutView.as_view(next_page='inicio'), name='logout'),
 
 
     path('edicionProducto/<idProducto>', edicionProducto, name="edicionProducto"),
