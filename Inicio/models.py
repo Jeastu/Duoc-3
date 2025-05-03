@@ -1,31 +1,72 @@
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
 class TipoUsuario(models.Model):
-    idTipoUsuario = models.AutoField(primary_key=True, verbose_name="Id del tipo usuario")
-    nombreTipo = models.CharField(max_length=30, verbose_name="Nombre del tipo de usuario", null=False, blank=False)
-
-    def __str__(self):
-        return self.nombreTipo
+    idTipoUsuario = models.AutoField(primary_key=True)
+    nombreTipo = models.CharField(max_length=30)
 
     class Meta:
         managed = False
         db_table = 'INICIO_TIPOUSUARIO'
 
-
-class Usuario(models.Model):
-    username = models.CharField(primary_key=True, max_length=15, verbose_name="Username del usuario")
-    contrasennia = models.CharField(max_length=30, verbose_name="Contraseña del usuario", null=False, blank=False)
-    nombre = models.CharField(max_length=60, verbose_name="Nombre del usuario", null=False, blank=False)
-    apellido = models.CharField(max_length=60, verbose_name="Apellido del usuario", null=False, blank=False)
-    email = models.CharField(max_length=150, verbose_name="Email del usuario", null=False, blank=False)
-    tipousuario = models.ForeignKey(TipoUsuario, on_delete=models.CASCADE)
-
     def __str__(self):
-        return self.nombre
+        return self.nombreTipo
+
+
+from django.contrib.auth.base_user import BaseUserManager
+from .models import TipoUsuario  # asegúrate que esto esté arriba
+
+class UsuarioManager(BaseUserManager):
+    def create_user(self, username, password=None, **extra_fields):
+        if not username:
+            raise ValueError("El nombre de usuario es obligatorio")
+        user = self.model(username=username, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, username, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        if 'tipousuario' not in extra_fields:
+            extra_fields['tipousuario'] = TipoUsuario.objects.get(idTipoUsuario=1)
+
+        return self.create_user(username, password, **extra_fields)
+
+
+
+
+
+
+class Usuario(AbstractBaseUser, PermissionsMixin):
+    username = models.CharField(max_length=15, unique=True, primary_key=True)
+    password = models.CharField(max_length=128)  # Django encripta automáticamente
+    nombre = models.CharField(max_length=60)
+    apellido = models.CharField(max_length=60)
+    email = models.EmailField(max_length=150)
+    tipousuario = models.ForeignKey(TipoUsuario, on_delete=models.DO_NOTHING, db_column='tipousuario_id')
+
+    # Campos requeridos por Django
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    last_login = models.DateTimeField(null=True)
+    date_joined = models.DateTimeField(auto_now_add=True)
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
+
+    objects = UsuarioManager()
 
     class Meta:
-        managed = False
+        managed = False  # No permitir que Django modifique esta tabla
         db_table = 'INICIO_USUARIO'
+
+    def __str__(self):
+        return self.username
+
 
 
 class Comuna(models.Model):
@@ -54,10 +95,27 @@ class Region(models.Model):
 
 
 class Direccion(models.Model):
-    idDireccion = models.AutoField(primary_key=True, verbose_name="Id de direccion", null=False, blank=False)
-    descripcionDir = models.TextField(verbose_name="Descripcion direccion", null=False, blank=False)
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    region = models.ForeignKey(Region, on_delete=models.CASCADE, null=True)
+    idDireccion = models.AutoField(
+        primary_key=True,
+        verbose_name="Id de direccion",
+        db_column='IDDIRECCION'  # importante para Oracle
+    )
+    descripcionDir = models.TextField(
+        verbose_name="Descripcion direccion",
+        null=False,
+        blank=False
+    )
+    usuario = models.ForeignKey(
+        Usuario,
+        on_delete=models.CASCADE,
+        db_column='USUARIO_ID'  # Oracle espera este nombre
+    )
+    region = models.ForeignKey(
+        Region,
+        on_delete=models.CASCADE,
+        null=True,
+        db_column='REGION_ID'  # Oracle espera este nombre
+    )
 
     def __str__(self):
         return self.descripcionDir
@@ -65,6 +123,7 @@ class Direccion(models.Model):
     class Meta:
         managed = False
         db_table = 'INICIO_DIRECCION'
+
 
 
 class Venta(models.Model):

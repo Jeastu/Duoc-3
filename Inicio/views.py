@@ -201,7 +201,11 @@ def registrarse(request):
     contexto = {"comunas_m": comunas,"regiones_m": regiones}
     return render(request,"Inicio/registrarse.html",contexto)
 
-def registrar_m (request):
+from django.contrib.auth import get_user_model
+
+Usuario = get_user_model()
+
+def registrar_m(request):
     user = request.POST['usuario']
     contra = request.POST['contra']
     correo = request.POST['email']
@@ -210,38 +214,50 @@ def registrar_m (request):
     comuna = request.POST['comuna']
     nombree = request.POST['nombre']
     apellido = request.POST['apellido']
-    
-    comuna2 = Comuna.objects.get(idComuna = comuna)
-    region2 = Region.objects.get(idRegion = region)
-    tipousuario2 = TipoUsuario.objects.get(idTipoUsuario = 2)
-    existe = None
-    try:
-        existe = Usuario.objects.get(username=user)
-        messages.error(request,'El usuario ya existe')
-        return redirect ('registrarse')
-    except:
-        Usuario.objects.create(username = user , contrasennia = contra, nombre = nombree, apellido = apellido, email = correo,tipousuario = tipousuario2)
-        x = Usuario.objects.get(username = user)
-        Direccion.objects.create(descripcionDir = direccion, usuario = x,region = region2)
-        return redirect ('iniciar')
+
+    comuna2 = Comuna.objects.get(idComuna=comuna)
+    region2 = Region.objects.get(idRegion=region)
+    tipousuario2 = TipoUsuario.objects.get(idTipoUsuario=2)
+
+    if Usuario.objects.filter(username=user).exists():
+        messages.error(request, 'El usuario ya existe')
+        return redirect('registrarse')
+
+    # Crea el usuario correctamente con contraseña encriptada
+    nuevo_usuario = Usuario.objects.create_user(
+        username=user,
+        password=contra,
+        email=correo,
+        nombre=nombree,
+        apellido=apellido,
+        tipousuario=tipousuario2
+    )
+
+    # Crea la dirección
+    Direccion.objects.create(descripcionDir=direccion, usuario=nuevo_usuario, region=region2)
+
+    return redirect('iniciar')
+
 
         
+from django.contrib.auth import authenticate, login
+
 def iniciar_sesion(request):
-    usuario1 = request.POST['usuario']
-    contra1 = request.POST['contra']
-    try:
-        usuario2 = Usuario.objects.get(username = usuario1,contrasennia = contra1)
-        
-        if(usuario2.tipousuario.idTipoUsuario == 1):
-            return redirect ('menu_admin')
-        else:    
-            contexto = {"usuario":usuario2}
-            
-            return render(request, 'Inicio/index.html', contexto)            
+    if request.method == "POST":
+        usuario1 = request.POST['usuario']
+        contra1 = request.POST['contra']
 
-    except:
-        messages.error(request,'El usuario o la contraseña son incorrectos')
-        return redirect ('iniciar')
+        user = authenticate(request, username=usuario1, password=contra1)
+
+        if user is not None:
+            login(request, user)
+            if user.tipousuario.idTipoUsuario == 1:
+                return redirect('menu_admin')
+            else:
+                return redirect('inicio')
+        else:
+            messages.error(request, 'Usuario o contraseña incorrectos')
+            return redirect('iniciar')
     
  
 

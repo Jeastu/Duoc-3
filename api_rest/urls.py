@@ -1,11 +1,16 @@
+
 from django.urls import path, include
 from rest_framework import routers
 from .views import CategoriaViewSet, ProductoViewSet, UsuarioViewSet, get_exchange_rates, search_mercadolibre, consumir_api_externa, consumir_api_externa_html
 
-router = routers.DefaultRouter()
-router.register('categoria', CategoriaViewSet)
-router.register('productos', ProductoViewSet)
-router.register('usuarios', UsuarioViewSet)
+
+# Rutas automáticas del ViewSet
+router = DefaultRouter()
+router.register(r'categorias', CategoriaViewSet)
+router.register(r'productos', ProductoViewSet)
+router.register(r'marcas', MarcaViewSet)
+router.register(r'tipos-producto', TipoProdViewSet)
+
 
 urlpatterns = [
     path('', include(router.urls)),

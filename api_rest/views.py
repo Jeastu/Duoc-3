@@ -7,6 +7,17 @@ from Inicio.models import Categoria, Producto, Usuario
 import requests
 
 # Create your views here.
+ api-changes
+
+from rest_framework import viewsets
+from Inicio.models import Categoria, Producto, Marca, TipoProd
+from .serializers import (
+    CategoriaSerializer, 
+    ProductoSerializer,
+    MarcaSerializer,
+    TipoProdSerializer
+)
+
 
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = Categoria.objects.all()
@@ -15,6 +26,7 @@ class CategoriaViewSet(viewsets.ModelViewSet):
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
+
 
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
@@ -52,6 +64,8 @@ def search_mercadolibre(request):
         return Response({'error': 'Error searching in MercadoLibre'}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 
 def consumir_api_externa(request):
