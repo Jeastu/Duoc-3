@@ -1,20 +1,17 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager, Group, Permission
 
 class TipoUsuario(models.Model):
     idTipoUsuario = models.AutoField(primary_key=True)
     nombreTipo = models.CharField(max_length=30)
 
     class Meta:
-        managed = False
         db_table = 'INICIO_TIPOUSUARIO'
+        managed = True
 
     def __str__(self):
         return self.nombreTipo
 
-
-from django.contrib.auth.base_user import BaseUserManager
-from .models import TipoUsuario  # asegúrate que esto esté arriba
 
 class UsuarioManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
@@ -31,29 +28,40 @@ class UsuarioManager(BaseUserManager):
         extra_fields.setdefault('is_active', True)
 
         if 'tipousuario' not in extra_fields:
-            extra_fields['tipousuario'] = TipoUsuario.objects.get(idTipoUsuario=1)
+            extra_fields['tipousuario'] = TipoUsuario.objects.get_or_create(idTipoUsuario=1, defaults={"nombreTipo": "Admin"})[0]
 
         return self.create_user(username, password, **extra_fields)
 
 
-
-
-
-
 class Usuario(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=15, unique=True, primary_key=True)
-    password = models.CharField(max_length=128)  # Django encripta automáticamente
+    password = models.CharField(max_length=128)
     nombre = models.CharField(max_length=60)
     apellido = models.CharField(max_length=60)
     email = models.EmailField(max_length=150)
     tipousuario = models.ForeignKey(TipoUsuario, on_delete=models.DO_NOTHING, db_column='tipousuario_id')
 
-    # Campos requeridos por Django
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    last_login = models.DateTimeField(null=True)
+    last_login = models.DateTimeField(null=True, blank=True)
     date_joined = models.DateTimeField(auto_now_add=True)
+
+    # relaciones necesarias para el admin
+    groups = models.ManyToManyField(
+        Group,
+        related_name='usuario_set',
+        blank=True,
+        verbose_name='groups',
+        help_text='The groups this user belongs to.'
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        related_name='usuario_set',
+        blank=True,
+        verbose_name='user permissions',
+        help_text='Specific permissions for this user.'
+    )
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
@@ -61,11 +69,13 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     objects = UsuarioManager()
 
     class Meta:
-        managed = False  # No permitir que Django modifique esta tabla
         db_table = 'INICIO_USUARIO'
+        managed = True
 
     def __str__(self):
         return self.username
+
+
 
 
 

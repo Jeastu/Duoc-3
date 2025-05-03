@@ -205,9 +205,20 @@ from django.contrib.auth import get_user_model
 
 Usuario = get_user_model()
 
+import re
+from django.contrib.auth import get_user_model
+
+Usuario = get_user_model()
+
+import re
+from django.contrib.auth import get_user_model
+
+Usuario = get_user_model()
+
 def registrar_m(request):
     user = request.POST['usuario']
     contra = request.POST['contra']
+    contra2 = request.POST['contra2']
     correo = request.POST['email']
     region = request.POST['region']
     direccion = request.POST['direccion']
@@ -215,15 +226,25 @@ def registrar_m(request):
     nombree = request.POST['nombre']
     apellido = request.POST['apellido']
 
-    comuna2 = Comuna.objects.get(idComuna=comuna)
-    region2 = Region.objects.get(idRegion=region)
-    tipousuario2 = TipoUsuario.objects.get(idTipoUsuario=2)
+    # Validar que las contraseñas coincidan
+    if contra != contra2:
+        messages.error(request, 'Las contraseñas no coinciden')
+        return redirect('registrarse')
+
+    # Validar reglas de seguridad de contraseña
+    patron = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$'
+    if not re.match(patron, contra):
+        messages.error(request, 'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un símbolo.')
+        return redirect('registrarse')
 
     if Usuario.objects.filter(username=user).exists():
         messages.error(request, 'El usuario ya existe')
         return redirect('registrarse')
 
-    # Crea el usuario correctamente con contraseña encriptada
+    comuna2 = Comuna.objects.get(idComuna=comuna)
+    region2 = Region.objects.get(idRegion=region)
+    tipousuario2 = TipoUsuario.objects.get(idTipoUsuario=2)
+
     nuevo_usuario = Usuario.objects.create_user(
         username=user,
         password=contra,
@@ -233,10 +254,11 @@ def registrar_m(request):
         tipousuario=tipousuario2
     )
 
-    # Crea la dirección
     Direccion.objects.create(descripcionDir=direccion, usuario=nuevo_usuario, region=region2)
 
     return redirect('iniciar')
+
+
 
 
         

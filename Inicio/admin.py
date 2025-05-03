@@ -39,3 +39,4 @@ class UsuarioAdmin(UserAdmin):
     ordering = ('username',)
 
 admin.site.register(Usuario, UsuarioAdmin)
+
