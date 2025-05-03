@@ -2,6 +2,8 @@
 from django.urls import path, include
 from rest_framework import routers
 from .views import CategoriaViewSet, ProductoViewSet, UsuarioViewSet, get_exchange_rates, search_mercadolibre, consumir_api_externa, consumir_api_externa_html
+from rest_framework.routers import DefaultRouter
+from .views import MarcaViewSet, TipoProdViewSet
 
 
 # Rutas automáticas del ViewSet

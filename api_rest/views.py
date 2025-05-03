@@ -5,9 +5,10 @@ from rest_framework.decorators import api_view
 from .serializers import CategoriaSerializer, ProductoSerializer, UsuarioSerializer
 from Inicio.models import Categoria, Producto, Usuario
 import requests
+from django.http import JsonResponse
 
 # Create your views here.
- api-changes
+
 
 from rest_framework import viewsets
 from Inicio.models import Categoria, Producto, Marca, TipoProd
@@ -82,3 +83,18 @@ def consumir_api_externa_html(request):
     response = requests.get(url)
     datos = response.json()
     return render(request, 'api_rest/externa.html', {'posts': datos})
+
+
+
+
+from rest_framework import viewsets
+from .serializers import MarcaSerializer, TipoProdSerializer
+from Inicio.models import Marca, TipoProd
+
+class MarcaViewSet(viewsets.ModelViewSet):
+    queryset = Marca.objects.all()
+    serializer_class = MarcaSerializer
+
+class TipoProdViewSet(viewsets.ModelViewSet):
+    queryset = TipoProd.objects.all()
+    serializer_class = TipoProdSerializer

@@ -1,5 +1,6 @@
 
 from Inicio.models import Categoria, Producto, Usuario  # importación correcta
+from Inicio.models import Marca, TipoProd
 
 from rest_framework import serializers
 
