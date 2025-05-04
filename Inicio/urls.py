@@ -3,6 +3,8 @@ from .views import iniciar,iniciar_sesion, inicio, inicioadmin, registrar_m, reg
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
+from django.urls import path
+from .views import noticias_tecnologia
 
 urlpatterns = [
 
@@ -75,5 +77,6 @@ urlpatterns = [
 
     path('edicionProducto/<idProducto>', edicionProducto, name="edicionProducto"),
     path('editarProducto/<idProducto>', editarProducto, name="editarProducto"),
+    path('noticias/', noticias_tecnologia, name='noticias'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -5,8 +5,30 @@ from .Carrito import Carrito
 
 # Create your views here.
 def inicio(request):
+    import requests
+    exchange_rates = {}
+    error_api = ""
 
-    return render(request,'Inicio/index.html')
+    url = "https://api.apilayer.com/exchangerates_data/latest?symbols=USD,EUR,ARS&base=CLP"
+    headers = {
+        "apikey": "euutIKYBqnVvg2GtjUlUYfI5VdNDC2O8"
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        exchange_rates = response.json().get('rates', {})
+    except Exception as e:
+        error_api = str(e)
+
+    return render(request, 'Inicio/index.html', {
+        'exchange_rates': exchange_rates,
+        'error_api': error_api,
+    })
+
+
+
+
 def inicioadmin(request):
 
     return render(request,'Inicio/index_admin.html') 
@@ -362,3 +384,29 @@ def limpiar_producto(request,usuario):
 
 
 
+#Api Externa
+
+import requests
+
+def obtener_tasas():
+    try:
+        res = requests.get('https://api.exchangerate.host/latest?base=CLP&symbols=USD,EUR,ARS')
+        if res.status_code == 200:
+            return res.json().get('rates', {})
+    except:
+        return {}
+    return {}
+
+
+
+from django.shortcuts import render
+import requests
+
+def noticias_tecnologia(request):
+    try:
+        res = requests.get('https://jsonplaceholder.typicode.com/posts')
+        noticias = res.json()
+    except:
+        noticias = []
+
+    return render(request, 'Inicio/noticias.html', {'noticias': noticias})

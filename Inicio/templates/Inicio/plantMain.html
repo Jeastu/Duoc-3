@@ -104,7 +104,20 @@
               {% endif %}
             </li>
           </ul>
-
+          <li class="nav-item">
+            <a class="nav-link active" href="{% url 'noticias' %}">
+              <i class="fa-solid fa-newspaper"></i> Noticias Tech
+            </a>
+          </li>
+          
+          {% if exchange_rates %}
+          <div class="alert alert-info text-center" style="margin-bottom: 0;">
+            Tasa USD: {{ exchange_rates.USD|floatformat:2 }} |
+            EUR: {{ exchange_rates.EUR|floatformat:2 }} |
+            ARS: {{ exchange_rates.ARS|floatformat:2 }}
+          </div>
+        {% endif %}
+        
           <ul class="navbar-nav mb-2 mb-lg-0">
             <li class="nav-item">
               {% if request.user.is_authenticated %}

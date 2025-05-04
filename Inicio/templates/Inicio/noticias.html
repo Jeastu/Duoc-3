@@ -1,0 +1,26 @@
+{% extends 'Inicio/plantMain.html' %}
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'Inicio/css/estilo-index.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container mt-5">
+    <h1 class="text-center" style="color: white;">📰 Noticias de tecnología</h1>
+
+    <div class="row mt-4">
+        {% for noticia in noticias %}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">{{ noticia.title|capfirst }}</h5>
+                    <p class="card-text">{{ noticia.body|capfirst }}</p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>No hay noticias disponibles.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
