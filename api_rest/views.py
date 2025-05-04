@@ -9,22 +9,28 @@ from .serializers import (
     MarcaSerializer,
     TipoProdSerializer
 )
+from rest_framework.permissions import IsAuthenticated
+
 
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
+    permission_classes = [IsAuthenticated]
 
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
+    permission_classes = [IsAuthenticated]
 
 class MarcaViewSet(viewsets.ModelViewSet):
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer
+    permission_classes = [IsAuthenticated]
 
 class TipoProdViewSet(viewsets.ModelViewSet):
     queryset = TipoProd.objects.all()
     serializer_class = TipoProdSerializer
+    permission_classes = [IsAuthenticated]
 
 
 import requests
