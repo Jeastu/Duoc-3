@@ -227,9 +227,13 @@ from django.contrib.auth import get_user_model
 
 Usuario = get_user_model()
 
+from django.contrib import messages
+import re
+
 def registrar_m(request):
     user = request.POST['usuario']
     contra = request.POST['contra']
+    contra2 = request.POST['repetircontra']  # Nuevo campo
     correo = request.POST['email']
     region = request.POST['region']
     direccion = request.POST['direccion']
@@ -245,7 +249,17 @@ def registrar_m(request):
         messages.error(request, 'El usuario ya existe')
         return redirect('registrarse')
 
-    # Crea el usuario correctamente con contraseña encriptada
+    # 🔐 Validación de contraseña segura
+    if len(contra) < 8 or not re.search(r"[A-Z]", contra) or not re.search(r"[0-9]", contra):
+        messages.error(request, 'La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.')
+        return redirect('registrarse')
+
+    # ❗ Validación de coincidencia
+    if contra != contra2:
+        messages.error(request, 'Las contraseñas no coinciden.')
+        return redirect('registrarse')
+
+    # ✅ Crear usuario
     nuevo_usuario = Usuario.objects.create_user(
         username=user,
         password=contra,
@@ -255,10 +269,12 @@ def registrar_m(request):
         tipousuario=tipousuario2
     )
 
-    # Crea la dirección
+    # ✅ Crear dirección
     Direccion.objects.create(descripcionDir=direccion, usuario=nuevo_usuario, region=region2)
 
     return redirect('iniciar')
+
+
 
 
         
