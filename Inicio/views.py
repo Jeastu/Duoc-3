@@ -233,7 +233,7 @@ import re
 def registrar_m(request):
     user = request.POST['usuario']
     contra = request.POST['contra']
-    contra2 = request.POST['repetircontra']  # Nuevo campo
+    contra2 = request.POST['contra2']  # Nuevo campo
     correo = request.POST['email']
     region = request.POST['region']
     direccion = request.POST['direccion']
@@ -246,8 +246,13 @@ def registrar_m(request):
     tipousuario2 = TipoUsuario.objects.get(idTipoUsuario=2)
 
     if Usuario.objects.filter(username=user).exists():
-        messages.error(request, 'El usuario ya existe')
-        return redirect('registrarse')
+       messages.error(request, 'El usuario ya existe')
+       return redirect('registrarse')
+
+    if Usuario.objects.filter(email=correo).exists():
+       messages.error(request, 'El correo ya está registrado')
+       return redirect('registrarse')
+
 
     # 🔐 Validación de contraseña segura
     if len(contra) < 8 or not re.search(r"[A-Z]", contra) or not re.search(r"[0-9]", contra):
